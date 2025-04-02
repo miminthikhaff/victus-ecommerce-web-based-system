@@ -57,22 +57,33 @@ export const login = (email, password) => async (dispatch) => {
 };
 
 // Register
-export const register = (userData) => async (dispatch) => {
+export const registerUser = (userData) => async (dispatch) => {
   try {
-    dispatch({ type: REGISTER_USER_REQUEST });
+    console.log("🔹 Sending Registration Request:", userData);
 
-    const config = { headers: { "Content-Type": "multipart/form-data" } };
+    // Create FormData object to handle file uploads
+    const formData = new FormData();
+    formData.append("name", userData.name);
+    formData.append("email", userData.email);
+    formData.append("password", userData.password);
+    formData.append("avatar", userData.avatar); // Make sure avatar is a file object
 
-    const { data } = await axios.post(`/api/v2/registration`, userData, config);
+    const config = {
+      headers: { "Content-Type": "multipart/form-data" },
+      withCredentials: true, // For sending cookies (if needed)
+    };
 
-    dispatch({ type: REGISTER_USER_SUCCESS, payload: data.user });
+    const { data } = await axios.post("/api/v2/registration", formData, config);
+
+    console.log("✅ Registration Successful:", data);
+
+    dispatch({ type: REGISTER_USER_SUCCESS, payload: data });
   } catch (error) {
-    dispatch({
-      type: REGISTER_USER_FAIL,
-      payload: error.response.data.message,
-    });
+    console.error("❌ Registration Failed:", error.response?.data || error);
+    dispatch({ type: REGISTER_USER_FAIL, payload: error.response?.data?.message || error.message });
   }
 };
+
 
 
 // Load User
@@ -162,12 +173,14 @@ export const forgotPassword = (email) => async (dispatch) => {
 
     dispatch({ type: FORGOT_PASSWORD_SUCCESS, payload: data.message });
   } catch (error) {
+    const errorMessage = error.response?.data?.message || error.message || "An error occurred during password reset";
     dispatch({
       type: FORGOT_PASSWORD_FAIL,
-      payload: error.response.data.message,
+      payload: errorMessage,
     });
   }
 };
+
 
 
 // Reset Password
