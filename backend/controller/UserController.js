@@ -5,38 +5,62 @@ const sendToken = require("../utils/jwtToken.js");
 const sendMail = require("../utils/sendMail.js");
 const crypto = require("crypto");
 const cloudinary = require("cloudinary");
+const formidable = require("formidable");
+
 
 // Register user
 exports.createUser = catchAsyncErrors(async (req, res, next) => {
-  try {
-    const { name, email, password, avatar } = req.body;
+  const form = new formidable.IncomingForm();
+  form.keepExtensions = true; // Keeps the file extension
+
+  form.parse(req, async (err, fields, files) => {
+    if (err) {
+      console.error("❌ File Parsing Error:", err);
+      return res.status(400).json({ success: false, message: "Error in file parsing" });
+    }
+
+    console.log("🔹 Form Fields:", fields); // Contains name, email, password
+    console.log("🔹 Uploaded Files:", files); // Contains avatar file
+
+    const { name, email, password } = fields;
+    const avatarFile = files.avatar; // The uploaded file is in `files.avatar`
+
+    // Validate required fields
+    if (!name || !email || !password || !avatarFile) {
+      console.log("❌ Missing Fields in Request");
+      return res.status(400).json({ success: false, message: "All fields are required!" });
+    }
 
     let user = await User.findOne({ email });
     if (user) {
-      return res
-        .status(400)
-        .json({ success: false, message: "User already exists" });
+      console.log("❌ User Already Exists:", email);
+      return res.status(400).json({ success: false, message: "User already exists" });
     }
 
-    const myCloud = await cloudinary.v2.uploader.upload(avatar, {
-      folder: "avatars",
-    });
+    // Upload avatar to Cloudinary
+    try {
+      const myCloud = await cloudinary.uploader.upload(avatarFile.path, { folder: "avatars" });
 
-    user = await User.create({
-      name,
-      email,
-      password,
-      avatar: { public_id: myCloud.public_id, url: myCloud.secure_url },
-    });
+      console.log("✅ Cloudinary Upload Successful:", myCloud);
 
-    sendToken(user, 201, res);
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
+      user = await User.create({
+        name,
+        email,
+        password,
+        avatar: { public_id: myCloud.public_id, url: myCloud.secure_url },
+      });
+
+      console.log("✅ User Created Successfully:", user);
+
+      sendToken(user, 201, res);
+    } catch (uploadError) {
+      console.error("❌ Cloudinary Upload Failed:", uploadError);
+      return res.status(500).json({ success: false, message: "File upload failed" });
+    }
+  });
 });
+
+
 
 // Login User
 exports.loginUser = catchAsyncErrors(async (req, res, next) => {
