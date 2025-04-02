@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/UserModel");
 
 
+
 exports.isAuthenticatedUser = catchAsyncErrors(async (req,res,next) =>{
     const { token } = req.cookies;
 
@@ -19,11 +20,15 @@ exports.isAuthenticatedUser = catchAsyncErrors(async (req,res,next) =>{
 });
 
 // Admin Roles
-exports.authorizeRoles = (...roles) =>{
-    return (req,res,next) =>{
-        if(!roles.includes(req.user.role)){
-          return next(new ErrorHandler(`${req.user.role} can not access this resources`));
-        };
-        next();
+exports.authorizeRoles = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({
+        message: `Role (${req.user.role}) is not allowed to access this resource`,
+      });
     }
-}
+    next();
+  };
+};
+
+console.log("authorizeRoles type:", typeof exports.authorizeRoles);
