@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import "./LoginSignup.css";
 import { useDispatch, useSelector } from "react-redux";
 import Loader from "../../more/Loader";
-import { clearErrors, login, register } from "../../actions/userAction";
+import { clearErrors, login, registerUser } from "../../actions/userAction";
 import MetaData from "../../more/Metadata";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -44,13 +44,16 @@ const LoginSignup = ({ history, location }) => {
   const registerSubmit = (e) => {
     e.preventDefault();
 
-    const myForm = new FormData();
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("email", email);
+    formData.append("password", password);
+    formData.append("avatar", avatar); // Make sure `avatar` is the correct file object
 
-    myForm.set("name", name);
-    myForm.set("email", email);
-    myForm.set("password", password);
-    myForm.set("avatar", avatar);
-    dispatch(register(myForm));
+    // If avatar is a base64 string, use the below instead:
+    // formData.append("avatar", avatar);
+
+    dispatch(registerUser(formData)); // Pass the FormData to your action
   };
 
   const registerDataChange = (e) => {
