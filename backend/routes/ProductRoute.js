@@ -11,7 +11,13 @@ const {
   getAdminProducts,
 } = require("../controller/ProductController");
 const { isAuthenticatedUser, authorizeRoles } = require("../middleware/auth");
+
+
+console.log("authorizeRoles:", typeof authorizeRoles);
+
 const router = express.Router();
+
+
 
 router.route("/products").get(getAllProducts);
 
