@@ -41,68 +41,84 @@ const LoginSignup = ({ history, location }) => {
     dispatch(login(loginEmail, loginPassword));
   };
 
-  const registerSubmit = (e) => {
+  const uploadToCloudinary = async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "user_avatars"); // Use the new upload preset name
+    formData.append("cloud_name", "dv2e3rocm"); // Replace with your Cloudinary cloud name
+
+    try {
+      const response = await fetch(
+        "https://api.cloudinary.com/v1_1/dv2e3rocm/image/upload",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+      const data = await response.json();
+      return data.secure_url; // URL of uploaded image
+    } catch (error) {
+      console.error("Error uploading avatar:", error);
+      return "";
+    }
+  };
+
+  const registerSubmit = async (e) => {
     e.preventDefault();
-  
-    // Debugging: Log user state and avatar before submitting
+
     console.log("🔹 User State Before Submit:", user);
     console.log("🔹 Avatar Before Submit:", avatar);
-  
-    // Validation to ensure required fields are not empty
+
     if (!name || !email || !password) {
       console.error("❌ Missing required fields.");
       return;
     }
-  
-    // Create FormData object
+
+    let avatarUrl = "https://default-avatar-url.com"; // Default avatar URL
+    if (avatar instanceof File) {
+      avatarUrl = await uploadToCloudinary(avatar);
+      if (!avatarUrl) {
+        console.error("❌ Avatar upload failed.");
+        return;
+      }
+    }
+
+    submitRegistrationForm(avatarUrl);
+  };
+
+  const submitRegistrationForm = (avatarUrl = "") => {
     const formData = new FormData();
     formData.append("name", name);
     formData.append("email", email);
     formData.append("password", password);
-  
-    // Ensure `avatar` is a File object
-    if (avatar instanceof File) {
-      formData.append("avatar", avatar);  // Append file
-    } else {
-      console.warn("⚠️ No valid avatar selected.");
+
+    if (avatarUrl) {
+      formData.append("avatar", avatarUrl);
     }
-  
-    // Debugging: Log the entries of FormData
-    for (const pair of formData.entries()) {
-      console.log(`🔹 ${pair[0]}:`, pair[1]);
-    }
-  
-    // Dispatch the registration request
-    dispatch(registerUser(formData));  // Pass FormData directly to the action
+
+    dispatch(registerUser(formData)); // Dispatch to backend
   };
-  
-    
-  
 
   const registerDataChange = (e) => {
     if (e.target.name === "avatar") {
       const file = e.target.files[0];
-  
+
       if (file) {
         const reader = new FileReader();
-  
+
         reader.onload = () => {
           if (reader.readyState === 2) {
             setAvatarPreview(reader.result); // Base64 preview
             setAvatar(file); // Store actual File object
           }
         };
-  
+
         reader.readAsDataURL(file); // Convert file to base64 for preview
       }
     } else {
       setUser({ ...user, [e.target.name]: e.target.value });
     }
   };
-  
-  
-  
-
 
   const redirect = location.search ? location.search.split("=")[1] : "/";
 
@@ -115,7 +131,7 @@ const LoginSignup = ({ history, location }) => {
     if (isAuthenticated) {
       history.push(redirect);
     }
-  }, [dispatch, error, alert, history, isAuthenticated]);
+  }, [dispatch, error, history, isAuthenticated]);
 
   const switchTabs = (e, tab) => {
     if (tab === "login") {
@@ -133,6 +149,7 @@ const LoginSignup = ({ history, location }) => {
       loginTab.current.classList.add("shiftToLeft");
     }
   };
+
   return (
     <>
       {loading ? (
