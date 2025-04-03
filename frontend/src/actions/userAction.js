@@ -57,20 +57,18 @@ export const login = (email, password) => async (dispatch) => {
 };
 
 // Register
-export const registerUser = (userData) => async (dispatch) => {
+export const registerUser = (formData) => async (dispatch) => {
   try {
-    console.log("🔹 Sending Registration Request:", userData);
+    console.log("🔹 Sending Registration Request:");
 
-    // Create FormData object to handle file uploads
-    const formData = new FormData();
-    formData.append("name", userData.name);
-    formData.append("email", userData.email);
-    formData.append("password", userData.password);
-    formData.append("avatar", userData.avatar); // Make sure avatar is a file object
+    // Debugging: Log FormData to check contents before sending
+    for (const pair of formData.entries()) {
+      console.log(`🔹 ${pair[0]}:`, pair[1]); // Should show avatar as a File
+    }
 
     const config = {
       headers: { "Content-Type": "multipart/form-data" },
-      withCredentials: true, // For sending cookies (if needed)
+      withCredentials: true, // If using cookies
     };
 
     const { data } = await axios.post("/api/v2/registration", formData, config);
@@ -80,9 +78,13 @@ export const registerUser = (userData) => async (dispatch) => {
     dispatch({ type: REGISTER_USER_SUCCESS, payload: data });
   } catch (error) {
     console.error("❌ Registration Failed:", error.response?.data || error);
-    dispatch({ type: REGISTER_USER_FAIL, payload: error.response?.data?.message || error.message });
+    dispatch({
+      type: REGISTER_USER_FAIL,
+      payload: error.response?.data?.message || error.message,
+    });
   }
 };
+
 
 
 
