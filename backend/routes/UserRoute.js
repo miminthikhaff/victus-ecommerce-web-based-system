@@ -1,5 +1,4 @@
 const express = require("express");
-const fileUpload = require("express-fileupload"); // Make sure this is required
 const path = require("path");
 
 const {
@@ -21,8 +20,6 @@ const { isAuthenticatedUser, authorizeRoles } = require("../middleware/auth");
 
 const router = express.Router();
 
-// Middleware to handle file uploads
-router.use(fileUpload());
 
 // Updated registration route with file handling
 router.post("/registration", async (req, res) => {
