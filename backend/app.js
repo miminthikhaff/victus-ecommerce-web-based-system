@@ -41,6 +41,10 @@ app.get("*",(req,res) =>{
     res.sendFile(path.resolve(__dirname,"../frontend/build/index.html"));
 })
 
+// Serve the uploaded files
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+
 // it's for errorHandeling
 app.use(ErrorHandler);
 
