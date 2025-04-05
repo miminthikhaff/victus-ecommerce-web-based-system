@@ -10,13 +10,17 @@ const cors = require("cors");
 app.use(cors({
     origin: "http://localhost:3000", // Adjust to match your frontend's address
     methods: "GET,POST,PUT,DELETE",
-    allowedHeaders: "Content-Type, Authorization"
+    allowedHeaders: "Content-Type, Authorization",
+    credentials: true,
   }));
 
 // Middleware to handle JSON payloads
 app.use(express.json());
+
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
+
+app.use(bodyParser.json({ type: 'application/*+json' }))
 
 // Load env variables
 if (process.env.NODE_ENV !== "PRODUCTION") {
