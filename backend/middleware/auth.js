@@ -16,7 +16,7 @@ exports.isAuthenticatedUser = catchAsyncErrors(async (req,res,next) =>{
 
   req.user = await User.findById(decodedData.id);
 
-  next();
+  return next();
 });
 
 // Admin Roles
@@ -27,7 +27,7 @@ exports.authorizeRoles = (...roles) => {
         message: `Role (${req.user.role}) is not allowed to access this resource`,
       });
     }
-    next();
+    return next();
   };
 };
 
