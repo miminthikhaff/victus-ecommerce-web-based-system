@@ -20,50 +20,58 @@ const { isAuthenticatedUser, authorizeRoles } = require("../middleware/auth");
 
 const router = express.Router();
 
+const User = require("../models/UserModel");
 
 // Updated registration route with file handling
 router.post("/registration", async (req, res) => {
-  const { name, email, password } = req.body;
+  // Log incoming data for debugging
+  console.log("🔹 Headers:", req.headers);
+  console.log("🔹 Full Request Body:", req.body);
 
-  // Check if avatar is uploaded
-  if (!req.files || !req.files.avatar) {
+  const { name, email, password, avatarUrl, avatarPublicId } = req.body;
+
+  console.log("🔍 name:", name);
+  console.log("🔍 email:", email);
+  console.log("🔍 password:", password);
+  console.log("🔍 avatarUrl:", avatarUrl);
+  console.log("🔍 avatarPublicId:", avatarPublicId);
+
+  // Check if required fields are provided
+  if (!name || !email || !password) {
+    return res.status(400).json({ message: "Name, email, and password are required" });
+  }
+
+  // Check if avatarUrl and avatarPublicId are provided
+  if (!avatarUrl || !avatarPublicId) {
     return res.status(400).json({ message: "Avatar is required" });
   }
 
-  const avatar = req.files.avatar;
+  try {
+    // Now create the user, including avatar URL and public ID in the database
+    const newUser = await User.create({
+      name,
+      email,
+      password,
+      avatar: {
+        public_id: avatarPublicId || "cloudinary",
+        url: avatarUrl,
+      },
+    });
 
-  // Validate avatar type (optional)
-  if (!avatar.mimetype.startsWith("image/")) {
-    return res.status(400).json({ message: "Please upload a valid image file" });
+    console.log("User created:", newUser);
+
+    res.status(201).json({
+      message: "User registered successfully",
+      user: { name, email, avatarUrl, avatarPublicId },
+    });
+  } catch (error) {
+    // Log the exact error to help debug
+    console.error("Error registering user:", error);
+    res.status(500).json({ message: "Error registering user", error: error.message });
   }
-
-  // Generate a unique path for the avatar file
-  const avatarPath = path.join(__dirname, "../uploads", Date.now() + path.extname(avatar.name));
-
-  // Move the avatar file to the uploads folder
-  avatar.mv(avatarPath, async (err) => {
-    if (err) {
-      return res.status(500).json({ message: "Error uploading avatar", error: err });
-    }
-
-    try {
-      // Now create the user, including avatar path in the database
-      const newUser = await createUser({
-        name,
-        email,
-        password,
-        avatar: avatarPath, // Save the path in the database
-      });
-
-      res.status(201).json({
-        message: "User registered successfully",
-        user: { name, email, avatar: avatarPath },
-      });
-    } catch (error) {
-      res.status(500).json({ message: "Error registering user", error: error.message });
-    }
-  });
 });
+
+
 
 // Other routes remain unchanged
 router.route("/login").post(loginUser);
