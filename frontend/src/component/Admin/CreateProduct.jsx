@@ -51,23 +51,34 @@ const CreateProduct = ({ history }) => {
     }
   }, [dispatch, alert, error, history, success]);
 
-  const createProductSubmitHandler = (e) => {
+  const createProductSubmitHandler = async (e) => {
     e.preventDefault();
-
+  
     const myForm = new FormData();
-
     myForm.set("name", name);
     myForm.set("price", price);
     myForm.set("offerPrice", offerPrice);
     myForm.set("description", description);
     myForm.set("category", category);
     myForm.set("Stock", Stock);
-
+  
     images.forEach((image) => {
-      myForm.append("images", image);
+      myForm.append("images", image); // This should be actual File/Blob
     });
-    dispatch(createProduct(myForm));
+  
+    // Debug: print all FormData key-value pairs
+    for (let [key, value] of myForm.entries()) {
+      console.log(`${key}:`, value);
+    }
+  
+    try {
+      await dispatch(createProduct(myForm));
+      console.log("Product created successfully");
+    } catch (error) {
+      console.error("Product creation failed:", error);
+    }
   };
+  
 
   const createProductImagesChange = (e) => {
     const files = Array.from(e.target.files);
