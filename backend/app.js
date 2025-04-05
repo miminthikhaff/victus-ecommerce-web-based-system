@@ -4,26 +4,26 @@ const ErrorHandler = require("./middleware/error");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const path = require("path");
-const cors = require('cors');
+const cors = require("cors");
 
+// Enable CORS
 app.use(cors({
-    origin: "http://localhost:3000", // Allow frontend to make requests to backend
-    methods: "GET,POST,PUT,DELETE",  // Allowed HTTP methods
-    credentials: true
-  
-}));
+    origin: "http://localhost:3000", // Adjust to match your frontend's address
+    methods: "GET,POST,PUT,DELETE",
+    allowedHeaders: "Content-Type, Authorization"
+  }));
 
-
+// Middleware to handle JSON payloads
 app.use(express.json());
 app.use(cookieParser());
-app.use(bodyParser.urlencoded({extended:true,limit:"50mb"}));
+app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
 
-
-// config
-if(process.env.NODE_ENV!=="PRODUCTION"){
-    require("dotenv").config({
-        path:"backend/config/.env"
-    })}
+// Load env variables
+if (process.env.NODE_ENV !== "PRODUCTION") {
+  require("dotenv").config({
+    path: "backend/config/.env",
+  });
+}
 
 // Route imports
 const product = require("./routes/ProductRoute");
@@ -32,30 +32,50 @@ const order = require("./routes/OrderRoute");
 const payment = require("./routes/PaymentRoute");
 const cart = require("./routes/WishListRoute");
 
-// Define API routes first
-app.use("/api/v2",product);
+app.use("/api/v2", product);
+app.use("/api/v2", user);
+app.use("/api/v2", order);
+app.use("/api/v2", payment);
+app.use("/api/v2", cart);
 
-app.use("/api/v2",user);
+// ✅ PLACE REGISTRATION ROUTE HERE - BEFORE REACT STATIC FILES
+app.post("/api/v2/registration", (req, res) => {
+    console.log("🔹 Headers:", req.headers);  // Log headers to confirm Content-Type is correct
+    console.log("🔹 Full Request Body:", req.body);  // Log body to confirm avatarUrl and avatarPublicId
+  
+    const { name, email, password, avatarUrl, avatarPublicId } = req.body;
+  
+    console.log("🔍 name:", name);
+    console.log("🔍 email:", email);
+    console.log("🔍 password:", password);
+    console.log("🔍 avatarUrl:", avatarUrl);
+    console.log("🔍 avatarPublicId:", avatarPublicId);
+  
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: "Name, email, and password are required" });
+    }
+  
+    if (!avatarUrl || !avatarPublicId) {
+      return res.status(400).json({ message: "Avatar is required" });
+    }
+  
+    return res.status(201).json({
+      message: "Registration successful",
+      user: { name, email, avatarUrl, avatarPublicId },
+    });
+  });
+  
+  
 
-app.use("/api/v2",order);
+// Serve React static files
+app.use(express.static(path.join(__dirname, "../frontend/build")));
 
-app.use("/api/v2",payment);
+// ❌ This wildcard route should always come LAST
+app.get("*", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "../frontend/build/index.html"));
+});
 
-app.use("/api/v2",cart);
-
-// Serve React static files only after API routes
-app.use(express.static(path.join(__dirname,"../frontend/build")));
-
-// Fallback for any unhandled routes (React app)
-app.get("*",(req,res) =>{
-    res.sendFile(path.resolve(__dirname,"../frontend/build/index.html"));
-})
-
-
-
-
-
-// it's for errorHandeling
+// Error handling middleware
 app.use(ErrorHandler);
 
-module.exports = app
+module.exports = app;
