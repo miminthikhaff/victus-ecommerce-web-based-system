@@ -103,6 +103,10 @@ export const newReview = (reviewData) => async (dispatch) => {
 
 // Create Product --------Admin
 export const createProduct = (productData) => async (dispatch) => {
+  // Debug: print all FormData key-value pairs
+  for (let [key, value] of productData.entries()) {
+    console.log(`${key}: ${value}`);
+    }
   try {
     dispatch({ type: NEW_PRODUCT_REQUEST });
 
@@ -111,9 +115,9 @@ export const createProduct = (productData) => async (dispatch) => {
     };
 
     const { data } = await axios.post(
-      `/api/v2/product/new`,
-      productData,
-      config
+      `http://localhost:4000/api/v2/product/new`,
+      JSON.stringify(Object.fromEntries(productData)),
+      { ...config, withCredentials: true }
     );
 
     dispatch({
