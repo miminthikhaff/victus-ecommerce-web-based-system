@@ -8,32 +8,26 @@ const cloudinary = require("../config/cloudinaryConfig");
 const formidable = require("formidable");
 
 
+
 // Register user
 exports.createUser = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, avatarUrl, avatarPublicId } = req.body;
 
-    if (!req.files || !req.files.avatar) {
+    console.log("🔹 Avatar URL received:", avatarUrl); // Debugging: Check avatarUrl
+    console.log("🔹 Avatar Public ID received:", avatarPublicId); // Debugging: Check avatarPublicId
+
+    if (!avatarUrl) {
       return res.status(400).json({ message: "Avatar is required" });
     }
 
-    const avatar = req.files.avatar; // Get avatar file
-
-    // Upload to Cloudinary
-    const cloudinaryResult = await cloudinary.uploader.upload(avatar.tempFilePath, {
-      folder: "avatars",
-      width: 150,
-      crop: "scale",
-    });
-
-    // Create user with Cloudinary image URL
     const user = await User.create({
       name,
       email,
       password,
       avatar: {
-        public_id: cloudinaryResult.public_id,
-        url: cloudinaryResult.secure_url,
+        public_id: avatarPublicId || "cloudinary",
+        url: avatarUrl,
       },
     });
 
@@ -42,11 +36,13 @@ exports.createUser = async (req, res) => {
       message: "User registered successfully!",
       user,
     });
-
   } catch (error) {
     res.status(500).json({ message: "Registration failed", error: error.message });
   }
 };
+
+
+
 
 
 
