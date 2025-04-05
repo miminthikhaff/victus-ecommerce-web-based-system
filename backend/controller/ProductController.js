@@ -6,6 +6,8 @@ const cloudinary = require("cloudinary");
 
 // create Product --Admin
 exports.createProduct = catchAsyncErrors(async (req, res, next) => {
+  // const data = JSON.parse(req.body.name);
+
   let images = [];
 
   if (typeof req.body.images === "string") {
@@ -13,6 +15,7 @@ exports.createProduct = catchAsyncErrors(async (req, res, next) => {
   } else {
     images = req.body.images;
   }
+  // console.log(req.body);
 
   const imagesLinks = [];
 
@@ -27,8 +30,10 @@ exports.createProduct = catchAsyncErrors(async (req, res, next) => {
     });
   }
 
+  
+
   req.body.images = imagesLinks;
-  req.body.user = req.user.id;
+  req.body.user = req && req.user ? req.user._id : null; // Ensure user ID is set
 
   const product = await Product.create(req.body);
 
@@ -251,4 +256,4 @@ exports.deleteReview = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
-// 
+//
