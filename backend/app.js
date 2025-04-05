@@ -38,34 +38,7 @@ app.use("/api/v2", order);
 app.use("/api/v2", payment);
 app.use("/api/v2", cart);
 
-// ✅ PLACE REGISTRATION ROUTE HERE - BEFORE REACT STATIC FILES
-app.post("/api/v2/registration", (req, res) => {
-    console.log("🔹 Headers:", req.headers);  // Log headers to confirm Content-Type is correct
-    console.log("🔹 Full Request Body:", req.body);  // Log body to confirm avatarUrl and avatarPublicId
-  
-    const { name, email, password, avatarUrl, avatarPublicId } = req.body;
-  
-    console.log("🔍 name:", name);
-    console.log("🔍 email:", email);
-    console.log("🔍 password:", password);
-    console.log("🔍 avatarUrl:", avatarUrl);
-    console.log("🔍 avatarPublicId:", avatarPublicId);
-  
-    if (!name || !email || !password) {
-      return res.status(400).json({ message: "Name, email, and password are required" });
-    }
-  
-    if (!avatarUrl || !avatarPublicId) {
-      return res.status(400).json({ message: "Avatar is required" });
-    }
-  
-    return res.status(201).json({
-      message: "Registration successful",
-      user: { name, email, avatarUrl, avatarPublicId },
-    });
-  });
-  
-  
+ 
 
 // Serve React static files
 app.use(express.static(path.join(__dirname, "../frontend/build")));
