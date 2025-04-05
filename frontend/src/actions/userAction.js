@@ -57,21 +57,17 @@ export const login = (email, password) => async (dispatch) => {
 };
 
 // Register
-export const registerUser = (formData) => async (dispatch) => {
+export const registerUser = (userData) => async (dispatch) => {
   try {
     console.log("🔹 Sending Registration Request:");
-
-    // Debugging: Log FormData to check contents before sending
-    for (const pair of formData.entries()) {
-      console.log(`🔹 ${pair[0]}:`, pair[1]); // Should show avatar as a File
-    }
+    console.log("🔹 Payload:", userData); // Debugging payload
 
     const config = {
-      headers: { "Content-Type": "multipart/form-data" },
+      headers: { "Content-Type": "application/json" },
       withCredentials: true, // If using cookies
     };
 
-    const { data } = await axios.post("/api/v2/registration", formData, config);
+    const { data } = await axios.post("/api/v2/registration", userData, config);
 
     console.log("✅ Registration Successful:", data);
 
@@ -84,6 +80,7 @@ export const registerUser = (formData) => async (dispatch) => {
     });
   }
 };
+
 
 
 
