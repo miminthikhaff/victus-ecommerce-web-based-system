@@ -81,36 +81,31 @@ export const registerUser = (userData) => async (dispatch) => {
   }
 };
 
-
-
-
-
 // Load User
-export const loadUser = () => async (dispatch) =>{
+export const loadUser = () => async (dispatch) => {
   try {
-      dispatch({type: LOAD_USER_REQUEST});
-           // eslint-disable-next-line
-      const config = { headers:{ "Content-Type": "application/json"} };
+    dispatch({ type: LOAD_USER_REQUEST });
+    // eslint-disable-next-line
+    const config = { headers: { "Content-Type": "application/json" } };
 
-      const {data} = await axios.get(
-          `/api/v2/me`);
-           
-     dispatch({type: LOAD_USER_SUCCESS, payload: data.user });
-  } catch (error) {  
-      dispatch({type: LOAD_USER_FAIL, payload: error.response.data.message});
+    const { data } = await axios.get(`/api/v2/me`);
+
+    dispatch({ type: LOAD_USER_SUCCESS, payload: data.user });
+  } catch (error) {
+    dispatch({ type: LOAD_USER_FAIL, payload: error.response.data.message });
   }
-}
-              
+};
+
 // Log out user
-export const logout = () => async (dispatch) =>{
-  try {        
+export const logout = () => async (dispatch) => {
+  try {
     await axios.get(`/api/v2/logout`);
-           
-    dispatch({type: LOGOUT_SUCCESS});
-  } catch (error) {  
-      dispatch({type: LOGOUT_FAIL, payload: error.response.data.message});
+
+    dispatch({ type: LOGOUT_SUCCESS });
+  } catch (error) {
+    dispatch({ type: LOGOUT_FAIL, payload: error.response.data.message });
   }
-}
+};
 
 // Update Profile
 export const updateProfile = (userData) => async (dispatch) => {
@@ -119,7 +114,11 @@ export const updateProfile = (userData) => async (dispatch) => {
 
     const config = { headers: { "Content-Type": "multipart/form-data" } };
 
-    const { data } = await axios.put(`/api/v2/me/update/info`, userData, config);
+    const { data } = await axios.put(
+      `/api/v2/me/update/info`,
+      userData,
+      config
+    );
 
     dispatch({ type: UPDATE_PROFILE_SUCCESS, payload: data.success });
   } catch (error) {
@@ -130,7 +129,7 @@ export const updateProfile = (userData) => async (dispatch) => {
   }
 };
 
-// Update Password 
+// Update Password
 export const updatePassword = (password) => async (dispatch) => {
   try {
     dispatch({ type: UPDATE_PASSWORD_REQUEST });
@@ -160,7 +159,6 @@ export const getAllUsers = () => async (dispatch) => {
   }
 };
 
-
 // Forgot Password
 export const forgotPassword = (email) => async (dispatch) => {
   try {
@@ -172,15 +170,16 @@ export const forgotPassword = (email) => async (dispatch) => {
 
     dispatch({ type: FORGOT_PASSWORD_SUCCESS, payload: data.message });
   } catch (error) {
-    const errorMessage = error.response?.data?.message || error.message || "An error occurred during password reset";
+    const errorMessage =
+      error.response?.data?.message ||
+      error.message ||
+      "An error occurred during password reset";
     dispatch({
       type: FORGOT_PASSWORD_FAIL,
       payload: errorMessage,
     });
   }
 };
-
-
 
 // Reset Password
 export const resetPassword = (token, passwords) => async (dispatch) => {
@@ -203,7 +202,6 @@ export const resetPassword = (token, passwords) => async (dispatch) => {
     });
   }
 };
-
 
 // Delete User ----- Admin
 export const deleteUser = (id) => async (dispatch) => {
@@ -258,8 +256,8 @@ export function updateUser(id, userData) {
 }
 
 //   Clearing errors
-export const clearErrors= () => async (dispatch)=>{
+export const clearErrors = () => async (dispatch) => {
   dispatch({
-      type: CLEAR_ERRORS
-  })
-}
+    type: CLEAR_ERRORS,
+  });
+};
