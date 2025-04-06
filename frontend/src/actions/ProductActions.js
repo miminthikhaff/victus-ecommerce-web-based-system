@@ -115,7 +115,7 @@ export const createProduct = (productData) => async (dispatch) => {
     };
 
     const { data } = await axios.post(
-      `http://localhost:4000/api/v2/product/new`,
+      `${process.env.REACT_APP_API_URL}/api/v2/product/new`,
       JSON.stringify(Object.fromEntries(productData)),
       { ...config, withCredentials: true }
     );
