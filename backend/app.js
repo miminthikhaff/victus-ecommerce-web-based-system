@@ -25,7 +25,7 @@ app.use(bodyParser.json({ type: 'application/*+json' }))
 // Load env variables
 if (process.env.NODE_ENV !== "PRODUCTION") {
   require("dotenv").config({
-    path: "backend/config/.env",
+    path: "config/.env",
   });
 }
 
