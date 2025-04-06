@@ -8,7 +8,7 @@ const cors = require("cors");
 
 // Enable CORS
 app.use(cors({
-    origin: "http://localhost:3000", // Adjust to match your frontend's address
+    origin: "https://victus-ecommerce-frontend.vercel.app/", // Adjust to match your frontend's address
     methods: "GET,POST,PUT,DELETE",
     allowedHeaders: "Content-Type, Authorization",
     credentials: true,
