@@ -46,13 +46,13 @@ const LoginSignup = ({ history, location }) => {
       console.error("❌ No file provided for upload.");
       return { avatarUrl: "", avatarPublicId: "" };
     }
-  
+
     console.log("🔹 Uploading file:", file);
-  
+
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", "user_avatars"); // Ensure this exists
-  
+
     try {
       const response = await fetch(
         "https://api.cloudinary.com/v1_1/dv2e3rocm/image/upload",
@@ -61,16 +61,16 @@ const LoginSignup = ({ history, location }) => {
           body: formData,
         }
       );
-  
+
       const data = await response.json();
-  
+
       if (!response.ok) {
         console.error("❌ Upload failed:", data.error?.message);
         return { avatarUrl: "", avatarPublicId: "" };
       }
-  
+
       console.log("✅ Cloudinary Upload Success:", data.secure_url);
-  
+
       // Return both avatarUrl and avatarPublicId
       return {
         avatarUrl: data.secure_url,
@@ -81,39 +81,36 @@ const LoginSignup = ({ history, location }) => {
       return { avatarUrl: "", avatarPublicId: "" };
     }
   };
-  
-  
-  
 
   const registerSubmit = async (e) => {
     e.preventDefault();
-  
+
     console.log("🔹 User State Before Submit:", user);
     console.log("🔹 Avatar Before Submit:", avatar);
-  
+
     if (!name || !email || !password) {
       console.error("❌ Missing required fields.");
       return;
     }
-  
+
     let avatarUrl = "https://default-avatar-url.com"; // Default avatar URL
     let avatarPublicId = ""; // Default empty string
-  
+
     if (avatar instanceof File) {
       console.log("🔹 Avatar Before Upload:", avatar); // 👈 Place this here for debugging
       console.log("File Type:", avatar?.type); // 👈 Logs the file type
       console.log("File Size:", avatar?.size); // 👈 Logs the file size
-  
+
       const uploadData = await uploadToCloudinary(avatar);
       avatarUrl = uploadData.avatarUrl;
       avatarPublicId = uploadData.avatarPublicId;
-  
+
       if (!avatarUrl) {
         console.error("❌ Avatar upload failed.");
         return;
       }
     }
-  
+
     // Construct the payload
     const payload = {
       name: user.name,
@@ -122,31 +119,31 @@ const LoginSignup = ({ history, location }) => {
       avatarUrl: avatarUrl,
       avatarPublicId: avatarPublicId, // Use avatarPublicId here
     };
-  
+
     console.log("🔹 Payload Being Sent:", payload);
-  
+
     // Send the request to the server
-    const response = await fetch("http://localhost:4000/api/v2/registration", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
-  
+    const response = await fetch(
+      `${process.env.REACT_APP_API_URL}/api/v2/registration`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+
     const data = await response.json();
-  
+
     if (!response.ok) {
       console.error("❌ Registration failed:", data.message);
       return;
     }
-  
+
     console.log("✅ Registration Successful:", data);
     // Proceed with your success actions here, like redirecting the user or showing a success message
   };
-  
-  
-  
 
   const submitRegistrationForm = ({ avatarUrl, avatarPublicId }) => {
     const payload = {
@@ -156,11 +153,10 @@ const LoginSignup = ({ history, location }) => {
       avatarUrl,
       avatarPublicId,
     };
-  
+
     console.log("🔹 Payload Being Sent:", payload);
     dispatch(registerUser(payload));
   };
-  
 
   const registerDataChange = (e) => {
     if (e.target.name === "avatar") {
