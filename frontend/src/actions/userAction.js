@@ -151,7 +151,12 @@ export const updatePassword = (password) => async (dispatch) => {
 export const getAllUsers = () => async (dispatch) => {
   try {
     dispatch({ type: ALL_USERS_REQUEST });
-    const { data } = await axios.get(`/api/v2/admin/users`);
+    const { data } = await axios.get(
+      `${process.env.REACT_APP_API_URL}/api/v2/admin/users`,
+      {
+        withCredentials: true,
+      }
+    );
 
     dispatch({ type: ALL_USERS_SUCCESS, payload: data.users });
   } catch (error) {
