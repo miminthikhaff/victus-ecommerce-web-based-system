@@ -2,6 +2,7 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://victus-ecommerce-frontend.onrender.com",
   "dependencies": {
     "@emailjs/browser": "^3.5.0",
     "@material-ui/core": "^4.12.3",
