@@ -2,7 +2,7 @@ import React, { Fragment, useState, useEffect } from "react";
 import "./UpdatePassword.css";
 import Loading from "../../more/Loader";
 import { useDispatch, useSelector } from "react-redux";
-// import { useAlert } from "react-alert";
+import { useAlert } from "react-alert";
 import MetaData from "../../more/Metadata";
 import LockOpenIcon from "@material-ui/icons/LockOpen";
 import LockIcon from "@material-ui/icons/Lock";
@@ -13,7 +13,7 @@ import { UPDATE_PASSWORD_RESET } from "../../constans/userContans";
 const UpdatePassword = ({ history }) => {
 
 const dispatch = useDispatch();
-//   const alert = useAlert();
+  const alert = useAlert();
 
   const { error, isUpdated, loading } = useSelector((state) => state.profile);
 
