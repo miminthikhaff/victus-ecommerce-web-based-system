@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./UserOption.css";
 import { SpeedDial, SpeedDialAction } from "@material-ui/lab";
 import Backdrop from "@material-ui/core/Backdrop";
@@ -7,36 +7,54 @@ import PersonIcon from "@material-ui/icons/Person";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import ListAltIcon from "@material-ui/icons/ListAlt";
 import ShoppingCartIcon from "@material-ui/icons/ShoppingCart";
-import Support from "@material-ui/icons/ReportProblem"
+import Support from "@material-ui/icons/ReportProblem";
 import HeartIcon from "@material-ui/icons/FavoriteBorder";
-import HeartActiveIcon from "@material-ui/icons/Favorite";
 import HomeIcon from "@material-ui/icons/Home";
 import { useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../actions/userAction";
-import { useRef } from "react";
 import { ToastContainer, toast } from 'react-toastify';
 
 const UserData = ({ user }) => {
-
   const { cartItems } = useSelector((state) => state.cart);
   const { favouriteItems } = useSelector((state) => state.favourite);
 
   const [open, setOpen] = useState(false);
   const history = useHistory();
-  
+  const dispatch = useDispatch();
+
   const scroolEffect = useRef(null);
 
-  window.addEventListener("scroll", () =>{
-    if(window.pageYOffset > 100){
-        document.querySelector(".speedDial").classList.add("active");
-    }
-    else{
-      document.querySelector(".speedDial").classList.remove("active");
-    }
-  })
+  // ⚠️ Add scroll effect safely using useEffect
+  useEffect(() => {
+    const handleScroll = () => {
+      const dial = document.querySelector(".speedDial");
+      if (!dial) return;
+      if (window.pageYOffset > 100) {
+        dial.classList.add("active");
+      } else {
+        dial.classList.remove("active");
+      }
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
-  const dispatch = useDispatch();
+  // 💡 Navigation functions
+  const dashboard = () => history.push("/dashboard");
+  const home = () => history.push("/");
+  const orders = () => history.push("/orders");
+  const cart = () => history.push("/cart");
+  const favourite = () => history.push("/favourites");
+  const account = () => history.push("/me");
+  const report = () => history.push("/support");
+  const logoutUser = () => {
+    dispatch(logout());
+    toast.success("Logout Successfully");
+  };
+
+  // ✅ Build options only when user is available
+  if (!user) return null;
 
   const options = [
     { icon: <HomeIcon />, name: "Home", func: home },
@@ -44,23 +62,23 @@ const UserData = ({ user }) => {
     {
       icon: (
         <ShoppingCartIcon
-        style={{
-         color: cartItems.length === 0 ? "" : "tomato",
-        }}
+          style={{
+            color: cartItems.length === 0 ? "" : "tomato",
+          }}
         />
       ),
       name: `Cart (${cartItems.length})`,
       func: cart,
     },
     {
-      icon:
-          <HeartIcon 
+      icon: (
+        <HeartIcon
           style={{
             color: favouriteItems.length === 0 ? "" : "tomato",
-           }}
-          />,
-      name:
-      `Favourite (${favouriteItems.length})`,
+          }}
+        />
+      ),
+      name: `Favourite (${favouriteItems.length})`,
       func: favourite,
     },
     { icon: <PersonIcon />, name: "Profile", func: account },
@@ -68,47 +86,13 @@ const UserData = ({ user }) => {
     { icon: <ExitToAppIcon />, name: "Logout", func: logoutUser },
   ];
 
-  if (user.role === "admin") {
+  // ✅ Insert dashboard based on role
+  if (user.role === "admin" || user.role === "Creator") {
     options.unshift({
       icon: <DashboardIcon />,
       name: "Dashboard",
       func: dashboard,
     });
-  }
-  if (user.role === "Creator") {
-    options.unshift({
-      icon: <DashboardIcon />,
-      name: "Dashboard",
-      func: dashboard,
-    });
-  }
-
-  function dashboard() {
-    history.push("/dashboard");
-  }
-  function home() {
-    history.push("/");
-  }
-  function orders() {
-    history.push("/orders");
-  }
-  function cart() {
-    history.push("/cart");
-  }
-  function favourite() {
-    history.push("/favourites");
-  }
-  function account() {
-    history.push("/me");
-  }
-
-  function report() {
-    history.push("/support");
-  }
-
-  function logoutUser() {
-    dispatch(logout());
-    toast.success("Logout Successfully");
   }
 
   return (
@@ -122,15 +106,13 @@ const UserData = ({ user }) => {
         open={open}
         direction="down"
         className="speedDial"
-        useRef={scroolEffect}
+        ref={scroolEffect}
         icon={
           <img
             className="speedDialIcon"
-            src={user?.avatar?.url ? user.avatar.url : ("/profile.png")}
+            src={user?.avatar?.url || "/profile.png"}
             alt="Profile"
-            style={{
-              position:"fixed"
-            }}
+            style={{ position: "fixed" }}
           />
         }
       >
@@ -144,7 +126,7 @@ const UserData = ({ user }) => {
           />
         ))}
       </SpeedDial>
-      <ToastContainer 
+      <ToastContainer
         position="bottom-center"
         autoClose={5000}
         hideProgressBar={false}
@@ -154,7 +136,7 @@ const UserData = ({ user }) => {
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        />
+      />
     </>
   );
 };
