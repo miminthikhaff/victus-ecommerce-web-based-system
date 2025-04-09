@@ -126,7 +126,7 @@ const UserData = ({ user }) => {
         icon={
           <img
             className="speedDialIcon"
-            src={user?.avatar.url ? user.avatar.url : ("/profile.png")}
+            src={user?.avatar?.url ? user.avatar.url : ("/profile.png")}
             alt="Profile"
             style={{
               position:"fixed"
