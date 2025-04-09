@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import "./UserOption.css";
 import { SpeedDial, SpeedDialAction } from "@material-ui/lab";
 import Backdrop from "@material-ui/core/Backdrop";
@@ -67,7 +67,7 @@ const UserData = ({ user }) => {
     toast.success("Logout Successfully");
   }
   
-  const baseOptions = [
+  const options = [
     { icon: <HomeIcon />, name: "Home", func: home },
     { icon: <ListAltIcon />, name: "Orders", func: orders },
     {
@@ -97,23 +97,20 @@ const UserData = ({ user }) => {
     { icon: <ExitToAppIcon />, name: "Logout", func: logoutUser },
   ];
 
-  const [options, setOptions] = useState([]);
-
-  useEffect(() => {
-    if (!user) return;
-  
-    let updatedOptions = [...baseOptions];
-  
-    if (user.role === "admin" || user.role === "Creator") {
-      updatedOptions.unshift({
-        icon: <DashboardIcon />,
-        name: "Dashboard",
-        func: dashboard,
-      });
-    }
-  
-    setOptions(updatedOptions);
-  }, [user, cartItems, favouriteItems]);
+  if (user?.role === "admin") {
+    options.unshift({
+      icon: <DashboardIcon />,
+      name: "Dashboard",
+      func: dashboard,
+    });
+  }
+  if (user?.role === "Creator") {
+    options.unshift({
+      icon: <DashboardIcon />,
+      name: "Dashboard",
+      func: dashboard,
+    });
+  }
 
   return (
     <>
