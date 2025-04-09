@@ -36,6 +36,10 @@ const order = require("./routes/OrderRoute");
 const payment = require("./routes/PaymentRoute");
 const cart = require("./routes/WishListRoute");
 
+// Serve React static files
+app.use(express.static(path.join(__dirname, "../frontend/build")));
+
+// API routes (place this BEFORE the wildcard catch-all!)
 app.use("/api/v2", product);
 app.use("/api/v2", user);
 app.use("/api/v2", order);
@@ -44,8 +48,6 @@ app.use("/api/v2", cart);
 
  
 
-// Serve React static files
-app.use(express.static(path.join(__dirname, "../frontend/build")));
 
 // ❌ This wildcard route should always come LAST
 app.get("*", (req, res) => {
